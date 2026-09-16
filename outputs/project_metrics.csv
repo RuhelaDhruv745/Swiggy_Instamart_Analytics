@@ -1,1 +1,16 @@
-
+Metric,Value,Data_Status
+Instamart Orders,33449,Observed
+Average Order Value,592.90,Observed
+Average Service Rating,3.24,Observed
+Refund Rate,45.71%,Observed
+Delay Rate,13.81%,Observed
+Modeled App to Browse Conversion,77.64%,Synthetic
+Modeled Browse to Cart Conversion,48.91%,Synthetic
+Modeled Cart to Checkout Conversion,70.37%,Synthetic
+Modeled Checkout to Complete Conversion,88.72%,Synthetic
+Modeled App to Order Conversion,23.71%,Synthetic
+Largest Modeled Funnel Drop,Browse to Add to Cart,Synthetic
+Simulated A/B Absolute Lift,2.43 percentage points,Simulated
+Simulated A/B Relative Lift,4.42%,Simulated
+Simulated A/B P-value,8.52e-12,Simulated
+Estimated Gross Incremental Revenue,1441842.43,Illustrative
