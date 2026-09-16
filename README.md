@@ -2,205 +2,271 @@
 
 ## Project Overview
 
-A product analytics case study focused on customer experience, funnel
-friction, and experiment design for an Instamart-style quick-commerce
-product.
+A product analytics case study focused on customer experience, funnel friction, and experiment design for an Instamart-style quick-commerce product.
 
-The analysis combines: - Order-level customer and operational analysis -
-Customer experience segmentation - A **synthetic product funnel**
-because the source dataset does not contain app-event/session logs - A
-**simulated A/B test** for a "Free Delivery Above ₹299" badge - Power BI
-dashboard design for business storytelling
+The analysis combines:
 
-> **Important methodology note:** The funnel and A/B test are
-> modeled/simulated analyses, not real Swiggy event logs or production
-> experiment results. The source data contains completed-order records
-> rather than true app-event instrumentation.
+- Order-level customer and operational analysis
+- Customer experience segmentation
+- A **synthetic product funnel** because the source dataset does not contain app-event/session logs
+- A **simulated A/B test** for a "Free Delivery Above ₹299" badge
+- Statistical testing and experiment sizing
+- Power BI dashboard design for business storytelling
+
+> **Important methodology note:** The funnel and A/B test are modeled/simulated analyses, not real Swiggy event logs or production experiment results. The source data contains completed-order records rather than true app-event instrumentation.
+
+---
 
 ## Dataset
 
-Source file: `Ecommerce_Delivery_Analytics_New.csv`
+**Source file:** `Ecommerce_Delivery_Analytics_New.csv`
 
-Instamart records: - 33,449 orders - 6,983 unique customers in the
-valid-timestamp subset - Valid timestamps cover only one calendar day,
-so genuine multi-week retention/churn analysis was not claimed.
+### Instamart Data
 
-## Key Business Insights
+- 33,449 Instamart orders
+- 8,795 unique customers across the cleaned Instamart dataset
+- 6,983 unique customers in the valid-timestamp subset used for temporal/customer-history analysis
+- Valid timestamps cover only one calendar day
+- Genuine multi-week retention/churn analysis was therefore not claimed
 
-### 1. Refund requests are strongly associated with lower ratings
+---
 
-  Refund status        Average service rating
-  ------------------ ------------------------
-  No refund                              4.57
-  Refund requested                       1.66
+# Key Business Insights
 
-This is a strong association in the dataset. It should not be
-interpreted as proof that refunds themselves caused the lower ratings.
+## 1. Refund requests are strongly associated with lower ratings
 
-![Refund vs Rating](charts/01_refund_vs_rating.png)
+| Refund Status | Average Service Rating |
+|---|---:|
+| No refund | 4.57 |
+| Refund requested | 1.66 |
 
-### 2. Delivery delays are associated with materially longer delivery times
+Refund-requested orders have substantially lower average service ratings in the observed data.
 
-  Delivery status     Average delivery time
-  ----------------- -----------------------
-  No delay                        26.94 min
-  Delayed                         45.56 min
+This is an association and should not be interpreted as proof that refunds themselves caused lower ratings.
+
+---
+
+## 2. Delivery delays are associated with materially longer delivery times
+
+| Delivery Status | Average Delivery Time |
+|---|---:|
+| No delay | 26.94 min |
+| Delayed | 45.56 min |
 
 The difference is approximately **18.62 minutes**.
 
-![Delay vs Delivery Time](charts/02_delay_vs_delivery_time.png)
+This indicates a strong relationship between the recorded delay status and delivery duration in the analyzed data.
 
-### 3. A substantial customer population falls into the high-risk experience segment
+---
 
-Rule-based segmentation used: - High Risk: rating \< 3 OR delay rate \>
-30% OR refund rate \> 50% - Medium Risk: rating \< 4 OR delay rate \>
-15% OR refund rate \> 25% - Otherwise: Healthy
+## 3. Customer Experience Segmentation
 
-Customer counts: - High Risk: 3,662 - Medium Risk: 1,440 - Healthy:
-1,881
+Customers were classified into three rule-based experience segments using historical rating, delay rate and refund rate.
 
-![Experience Segments](charts/03_experience_segments.png)
+### Segmentation Rules
 
-### 4. Modeled funnel friction is concentrated at Browse → Add to Cart
+- **High Risk:** rating < 3 OR delay rate > 30% OR refund rate > 50%
+- **Medium Risk:** rating < 4 OR delay rate > 15% OR refund rate > 25%
+- **Healthy:** otherwise
 
-A synthetic 100,000-session funnel was created using historical
-customer-experience features to demonstrate funnel analysis.
+### Customer Counts
 
-  Funnel stage           Sessions
-  -------------------- ----------
-  App Open                100,000
-  Category Browse          77,640
-  Add to Cart              37,974
-  Checkout Initiated       26,724
-  Order Complete           23,710
+| Experience Segment | Customers |
+|---|---:|
+| High Risk Experience | 3,662 |
+| Medium Risk Experience | 1,440 |
+| Healthy Experience | 1,881 |
 
-Modeled conversion: - App → Browse: 77.64% - Browse → Cart: 48.91% -
-Cart → Checkout: 70.37% - Checkout → Complete: 88.72% - Overall App →
-Complete: 23.71%
+The segmentation is **rule-based**, rather than an ML clustering model.
 
-The largest modeled drop-off is **Browse → Add to Cart: 51.09%**.
+---
 
-![Synthetic Funnel](charts/04_synthetic_funnel.png)
+# Product Funnel Analysis
 
-### 5. Customer experience segments show modeled funnel differences
+## 4. Modeled Funnel Friction
 
-In the synthetic scenario: - Healthy customers had modeled Browse → Cart
-conversion of about **55.35%** - High-risk customers had modeled Browse
-→ Cart conversion of about **42.30%**
+Because the source dataset contains completed-order records rather than actual app-session events, a **synthetic 100,000-session funnel** was created to demonstrate product funnel analysis.
 
-This gap is a modeled association generated from the simulation, not
-causal evidence.
+### Funnel
 
-## Simulated A/B Test
+**App Open → Category Browse → Add to Cart → Checkout Initiated → Order Complete**
+
+| Funnel Stage | Sessions |
+|---|---:|
+| App Open | 100,000 |
+| Category Browse | 77,640 |
+| Add to Cart | 37,974 |
+| Checkout Initiated | 26,724 |
+| Order Complete | 23,710 |
+
+### Modeled Conversion
+
+- App → Browse: **77.64%**
+- Browse → Cart: **48.91%**
+- Cart → Checkout: **70.37%**
+- Checkout → Complete: **88.72%**
+- Overall App → Complete: **23.71%**
+
+The largest modeled drop-off occurs at:
+
+**Browse → Add to Cart: 51.09%**
+
+This identifies the browse-to-cart stage as the primary area for further investigation using real product-event data.
+
+---
+
+## 5. Experience Segments Show Modeled Funnel Differences
+
+In the synthetic scenario:
+
+| Experience Segment | Browse → Add to Cart |
+|---|---:|
+| Healthy Experience | ~55.35% |
+| Medium Risk Experience | ~54.77% |
+| High Risk Experience | ~42.30% |
+
+The simulation therefore shows a modeled difference in funnel conversion across experience segments.
+
+> This is a **modeled association generated from the synthetic funnel**, not causal evidence that customer experience directly causes lower conversion.
+
+---
+
+# Simulated A/B Test
+
+## Experiment Design
+
+### Hypothesis
+
+A more visible value proposition at the browse stage may influence users' decision to add products to their cart.
 
 ### Experiment
 
-**Control:** Normal experience\
+**Control:** Normal experience
+
 **Treatment:** "Free Delivery Above ₹299" badge
 
-**Primary metric:** Browse → Add-to-Cart conversion
+**Primary Metric:** Browse → Add-to-Cart conversion
 
-The metric was selected because Browse → Cart represented the largest
-modeled funnel drop-off.
+The metric was selected because Browse → Add to Cart represented the largest modeled funnel drop-off.
 
-  Variant       Browse → Cart
-  ----------- ---------------
-  Control              55.02%
-  Treatment            57.45%
+---
 
-Simulated result: - Absolute lift: **+2.43 percentage points** -
-Relative lift: **+4.42%** - p-value: **8.52 × 10⁻¹²** - 95% CI for
-treatment − control: **+1.73 to +3.13 pp** - Required sample size for
-80% power: **5,104 per group** - Estimated incremental gross revenue for
-100,000 eligible browsing sessions: **₹14.42 lakh**
+## Simulated Results
 
-![A/B Test](charts/05_ab_test.png)
+| Variant | Browse → Add to Cart |
+|---|---:|
+| Control | 55.02% |
+| Treatment | 57.45% |
 
-### Critical interpretation
+### Statistical Results
 
-The treatment effect of 5% relative lift was an **assumption used to
-generate the simulated treatment outcomes**. Therefore, the simulated
-p-value and confidence interval demonstrate the statistical testing
-workflow but do **not** establish that an actual Swiggy badge would
-generate a 4.42% lift.
+- **Absolute lift:** +2.43 percentage points
+- **Relative lift:** +4.42%
+- **p-value:** 8.52 × 10⁻¹²
+- **95% CI for treatment − control:** +1.73 to +3.13 percentage points
+- **Required sample size for 80% power:** 5,104 per group
+- **Estimated gross incremental revenue:** ~₹14.42 lakh per 100,000 eligible browsing sessions
 
-The revenue figure is **gross incremental revenue**, not net
-contribution. A real business case would subtract incremental
-delivery/promotion costs.
+---
 
-## Product Recommendations
+## Critical Interpretation
 
-1.  Investigate the Browse → Add-to-Cart friction through real event
-    instrumentation.
-2.  Segment funnel performance by customer experience indicators such as
-    delivery reliability, refunds, and ratings.
-3.  Improve visibility of value propositions at the browse stage and
-    validate them through a real randomized experiment.
-4.  Treat refund-related low ratings as a customer-experience signal and
-    investigate the underlying operational causes.
-5.  Monitor delayed orders as a service-quality metric because delayed
-    orders were associated with substantially longer delivery times.
+The treatment effect of **5% relative lift** was an **assumption used to generate the simulated treatment outcomes**.
 
-## Power BI Dashboard
+Therefore, the simulated p-value and confidence interval demonstrate the statistical testing workflow but **do not establish that an actual Swiggy badge would generate a 4.42% lift**.
 
-### Page 1 --- Customer & Business Overview
+The revenue figure represents **illustrative gross incremental revenue**, not net contribution. A real business case would need to account for incremental delivery, promotion and other associated costs.
 
--   Total orders
--   Unique customers
--   Average order value
--   Average delivery time
--   Average service rating
--   Refund rate
--   Delay rate
--   Orders by product category
--   AOV by category
--   Orders by delay status
--   Average rating by refund status
--   Rule-based customer experience segments
+---
 
-### Page 2 --- Funnel & Experiment
+# Product Recommendations
 
--   Synthetic funnel
--   Stage conversion/drop-off
--   Segment funnel comparison
--   Simulated A/B test results
--   Lift, confidence interval and p-value
--   Revenue opportunity scenario
+Based on the observed data and modeled analysis, areas for further investigation include:
 
-## Tech Stack
+1. Investigate Browse → Add-to-Cart friction using real product-event instrumentation.
+2. Segment funnel performance using customer-experience indicators such as delivery reliability, refunds and ratings.
+3. Test value propositions and pricing/delivery messaging through a real randomized experiment.
+4. Investigate the operational drivers underlying the strong association between refunds and lower ratings.
+5. Monitor delivery delays as a service-quality metric because delayed orders were associated with substantially longer delivery times.
+6. Evaluate experiments using incremental contribution margin rather than gross revenue alone.
 
--   Python
--   Pandas
--   NumPy
--   Matplotlib
--   Statistical testing
--   Power BI
--   DAX
--   Jupyter / VS Code
+---
 
-## Repository Structure
+# Power BI Dashboard
 
-``` text
+## Page 1 — Executive Overview
+
+The dashboard provides an overview of:
+
+- Total orders
+- Unique customers
+- Average order value
+- Average delivery time
+- Average service rating
+- Refund rate
+- Delay rate
+- Orders by product category
+- Average order value by category
+- Orders by delivery delay
+- Average rating by refund status
+- Rule-based customer experience segments
+
+![Executive Overview](charts/01_executive_overview.png)
+
+---
+
+## Page 2 — Funnel & Experimentation
+
+The second dashboard connects the customer-experience analysis with product experimentation.
+
+It includes:
+
+- Modeled product funnel
+- Funnel stage conversion/drop-off
+- Experience-segment funnel comparison
+- Simulated A/B test
+- Absolute and relative lift
+- Statistical significance
+- Confidence interval
+- Experiment assumptions and limitations
+
+![Funnel & A/B Testing](charts/02_funnel_ab_testing.png)
+
+> **Important:** The funnel and A/B test are modeled/simulated because the source dataset does not contain actual app-session event logs or a randomized experiment. These results are illustrative and should not be interpreted as actual Swiggy experiment results.
+
+---
+
+# Tech Stack
+
+- **Python**
+- **Pandas**
+- **NumPy**
+- **Matplotlib**
+- **Statistical Testing**
+- **Power BI**
+- **DAX**
+- **Jupyter Notebook**
+- **VS Code**
+- **GitHub**
+
+---
+
+# Repository Structure
+
+```text
 Swiggy_Instamart_Analytics/
-├── data/
+│
+├── charts/
+│   ├── 01_executive_overview.png
+│   └── 02_funnel_ab_testing.png
+│
 ├── notebooks/
 │   ├── 01_data_preparation.ipynb
 │   └── 02_product_funnel_analysis.ipynb
+│
 ├── outputs/
-│   ├── figures/
-│   ├── tables/
-│   └── powerbi/
-├── src/
+│   └── project_metrics.csv
+│
 ├── requirements.txt
+├── Swiggy_Instamart_Product_Analytics.pbix
 └── README.md
-```
-
-## Limitations
-
--   The source dataset does not provide genuine app/session event logs.
--   The funnel is therefore synthetic/model-based.
--   The A/B test is simulated and uses an assumed treatment effect.
--   Valid timestamp data spans only one day, so multi-week
-    retention/churn was intentionally excluded.
--   Associations are not interpreted as causal effects without
-    randomized or longitudinal evidence.
